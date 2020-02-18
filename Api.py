@@ -24,6 +24,25 @@ class MyWidget(QMainWindow):
                     float(map_params['spn'].split(',')[1]) * 0.1 > 0.001:
                 map_params['spn'] = ','.join([str(float(map_params['spn'].split(',')[0]) * 0.1),
                                               str(float(map_params['spn'].split(',')[1]) * 0.1)])
+        elif event.key() == Qt.Key_Up:
+            map_params['ll'] = ','.join([str(float(map_params['ll'].split(',')[0])),
+                                         str(float(map_params['ll'].split(',')[1]) +
+                                             float(map_params['spn'].split(',')[0]))])
+        elif event.key() == Qt.Key_Down:
+            map_params['ll'] = ','.join(
+                [str(float(map_params['ll'].split(',')[0])),
+                 str(float(map_params['ll'].split(',')[1]) -
+                     float(map_params['spn'].split(',')[0]))])
+        elif event.key() == Qt.Key_Right:
+            map_params['ll'] = ','.join(
+                [str(float(map_params['ll'].split(',')[0]) +
+                     float(map_params['spn'].split(',')[0])),
+                 str(float(map_params['ll'].split(',')[1]))])
+        elif event.key() == Qt.Key_Left:
+            map_params['ll'] = ','.join(
+                [str(float(map_params['ll'].split(',')[0]) -
+                     float(map_params['spn'].split(',')[0])),
+                 str(float(map_params['ll'].split(',')[1]))])
         request()
 
     def load_image(self, image):
