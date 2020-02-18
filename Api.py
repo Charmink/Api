@@ -18,6 +18,7 @@ class MyWidget(QMainWindow):
         self.radioButton_4.clicked.connect(self.generate)
         self.type = False
         self.pushButton.clicked.connect(self.search)
+        self.pushButton_2.clicked.connect(self.vipe)
 
     def keyPressEvent(self, event):
         global map_params
@@ -87,6 +88,12 @@ class MyWidget(QMainWindow):
         map_params['ll'] = ','.join([toponym_longitude, toponym_lattitude])
         map_params['pt'] = f"{','.join([toponym_longitude, toponym_lattitude])}" \
                            f",flag"
+        request()
+
+    def vipe(self):
+        global map_params
+        map_params.pop('pt', None)
+        self.lineEdit.setText('')
         request()
 
     def load_image(self, image):
