@@ -85,7 +85,8 @@ class MyWidget(QMainWindow):
         except Exception:
             return
         map_params['ll'] = ','.join([toponym_longitude, toponym_lattitude])
-        map_params['pt'] = f"{','.join([toponym_longitude, toponym_lattitude])},flag"
+        map_params['pt'] = f"{','.join([toponym_longitude, toponym_lattitude])}" \
+                           f",flag"
         request()
 
     def load_image(self, image):
