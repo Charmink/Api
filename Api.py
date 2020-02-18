@@ -19,6 +19,7 @@ class MyWidget(QMainWindow):
         self.type = False
         self.pushButton.clicked.connect(self.search)
         self.pushButton_2.clicked.connect(self.vipe)
+        self.checkBox.clicked.connect(self.search)
 
     def keyPressEvent(self, event):
         global map_params
@@ -84,7 +85,6 @@ class MyWidget(QMainWindow):
             try:
                 index = toponym['metaDataProperty']['GeocoderMetaData']['Address']['postal_code']
             except Exception:
-                print(1)
                 self.checkBox.setCheckState(False)
             toponym_coodrinates = toponym["Point"]["pos"]
             toponym_longitude, toponym_lattitude = toponym_coodrinates.split(" ")
