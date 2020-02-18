@@ -20,6 +20,7 @@ class MyWidget(QMainWindow):
         self.pushButton.clicked.connect(self.search)
         self.pushButton_2.clicked.connect(self.vipe)
         self.checkBox.clicked.connect(self.search)
+        self.center = [301, 211]
 
     def keyPressEvent(self, event):
         global map_params
@@ -54,6 +55,24 @@ class MyWidget(QMainWindow):
                  str(float(map_params['ll'].split(',')[1]))])
         request()
 
+    def mousePressEvent(self, event):
+        global map_params
+        if 0 <= int(event.x()) <= 601 and 0 <= int(event.y()) <= 421:
+            coords = [int(event.x()), int(event.y())]
+            rotate = [(coords[0] - self.center[0]) / 180 *
+                      float(map_params['spn'].split(',')[0]),
+                      (coords[1] - self.center[1]) / 320 *
+                      float(map_params['spn'].split(',')[0])]
+            t_long, t_lat = float(map_params['ll'].split(',')[0]), \
+                                                   float(map_params['ll'].split(',')[1])
+            map_params[
+                'pt'] = f"{','.join([str(t_long + rotate[0]), str(t_lat - rotate[1])])},flag"
+            map_params[
+                'll'] = f"{','.join([str(t_long + rotate[0]), str(t_lat - rotate[1])])}"
+        else:
+            return
+        self.search()
+
     def generate(self):
         global map_params
         for button in self.buttonGroup.buttons():
@@ -72,10 +91,16 @@ class MyWidget(QMainWindow):
     def search(self):
         global map_params
         geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"
-        geocoder_params = {
-            "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
-            "geocode": self.lineEdit.text(),
-            "format": "json"}
+        if self.sender() is None:
+            geocoder_params = {
+                "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
+                "geocode": map_params['ll'],
+                "format": "json"}
+        else:
+            geocoder_params = {
+                "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
+                "geocode": self.lineEdit.text(),
+                "format": "json"}
         try:
             response = requests.get(geocoder_api_server, params=geocoder_params)
             json_response = response.json()
