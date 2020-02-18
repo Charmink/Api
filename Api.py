@@ -81,6 +81,11 @@ class MyWidget(QMainWindow):
             toponym = json_response["response"]["GeoObjectCollection"][
                 "featureMember"][0]["GeoObject"]
             address = toponym['metaDataProperty']['GeocoderMetaData']['Address']['formatted']
+            try:
+                index = toponym['metaDataProperty']['GeocoderMetaData']['Address']['postal_code']
+            except Exception:
+                print(1)
+                self.checkBox.setCheckState(False)
             toponym_coodrinates = toponym["Point"]["pos"]
             toponym_longitude, toponym_lattitude = toponym_coodrinates.split(" ")
         except Exception:
@@ -89,6 +94,10 @@ class MyWidget(QMainWindow):
         map_params['pt'] = f"{','.join([toponym_longitude, toponym_lattitude])}" \
                            f",flag"
         self.textBrowser.setPlainText('\n'.join(address.split(', ')))
+        if self.checkBox.isChecked():
+            self.textBrowser.setPlainText('\n'.join(address.split(', ')) + '\n' + index)
+        else:
+            self.textBrowser.setPlainText('\n'.join(address.split(', ')))
         request()
 
     def vipe(self):
