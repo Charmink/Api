@@ -160,7 +160,8 @@ class MyWidget(QMainWindow):
             'lang': 'ru_RU',
             "ll": map_params['pt'][:-5],
             'type': 'biz',
-            "spn": '0.0008,0.0008'}
+            "spn": '0.0008,0.0008',
+            'rspn': '1'}
 
         map_search_server = "https://search-maps.yandex.ru/v1/"
         # ... и выполняем запрос
