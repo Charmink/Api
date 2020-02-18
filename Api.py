@@ -17,6 +17,7 @@ class MyWidget(QMainWindow):
         self.radioButton_3.clicked.connect(self.generate)
         self.radioButton_4.clicked.connect(self.generate)
         self.type = False
+        self.pushButton.clicked.connect(self.search)
 
     def keyPressEvent(self, event):
         global map_params
@@ -65,6 +66,26 @@ class MyWidget(QMainWindow):
             map_params['l'] += f',{self.radioButton_4.text()}'
         if self.radioButton_3.isChecked():
             map_params['l'] += f',{self.radioButton_3.text()}'
+        request()
+
+    def search(self):
+        global map_params
+        geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"
+        geocoder_params = {
+            "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
+            "geocode": self.lineEdit.text(),
+            "format": "json"}
+        try:
+            response = requests.get(geocoder_api_server, params=geocoder_params)
+            json_response = response.json()
+            toponym = json_response["response"]["GeoObjectCollection"][
+                "featureMember"][0]["GeoObject"]
+            toponym_coodrinates = toponym["Point"]["pos"]
+            toponym_longitude, toponym_lattitude = toponym_coodrinates.split(" ")
+        except Exception:
+            return
+        map_params['ll'] = ','.join([toponym_longitude, toponym_lattitude])
+        map_params['pt'] = f"{','.join([toponym_longitude, toponym_lattitude])},flag"
         request()
 
     def load_image(self, image):
