@@ -63,8 +63,8 @@ class MyWidget(QMainWindow):
                       float(map_params['spn'].split(',')[0]),
                       (coords[1] - self.center[1]) / 320 *
                       float(map_params['spn'].split(',')[0])]
-            t_long, t_lat = float(map_params['ll'].split(',')[0]), \
-                                                   float(map_params['ll'].split(',')[1])
+            t_long, t_lat = float(map_params['ll'].split(',')[0]), float(map_params['ll'].split(
+                ',')[1])
             map_params[
                 'pt'] = f"{','.join([str(t_long + rotate[0]), str(t_lat - rotate[1])])},flag"
             map_params[
