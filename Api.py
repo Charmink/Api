@@ -10,8 +10,8 @@ from PyQt5.QtCore import Qt
 class MyWidget(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.setFocus()
         uic.loadUi('1.ui', self)
-        self.label.setFocus()
         self.setWindowTitle('MapApi')
         self.buttonGroup.buttonClicked.connect(self.generate)
         self.radioButton_3.clicked.connect(self.generate)
@@ -57,21 +57,36 @@ class MyWidget(QMainWindow):
 
     def mousePressEvent(self, event):
         global map_params
-        if 0 <= int(event.x()) <= 601 and 0 <= int(event.y()) <= 421:
-            coords = [int(event.x()), int(event.y())]
-            rotate = [(coords[0] - self.center[0]) / 180 *
-                      float(map_params['spn'].split(',')[0]),
-                      (coords[1] - self.center[1]) / 320 *
-                      float(map_params['spn'].split(',')[0])]
-            t_long, t_lat = float(map_params['ll'].split(',')[0]), float(map_params['ll'].split(
-                ',')[1])
-            map_params[
-                'pt'] = f"{','.join([str(t_long + rotate[0]), str(t_lat - rotate[1])])},flag"
-            map_params[
-                'll'] = f"{','.join([str(t_long + rotate[0]), str(t_lat - rotate[1])])}"
-        else:
-            return
-        self.search()
+        if event.button() == Qt.LeftButton:
+            if 0 <= int(event.x()) <= 601 and 0 <= int(event.y()) <= 421:
+                coords = [int(event.x()), int(event.y())]
+                rotate = [(coords[0] - self.center[0]) / 180 *
+                          float(map_params['spn'].split(',')[0]),
+                          (coords[1] - self.center[1]) / 320 *
+                          float(map_params['spn'].split(',')[0])]
+                t_long, t_lat = float(map_params['ll'].split(',')[0]), \
+                                                       float(map_params['ll'].split(',')[1])
+                map_params[
+                    'pt'] = f"{','.join([str(t_long + rotate[0]), str(t_lat - rotate[1])])},flag"
+                map_params[
+                    'll'] = f"{','.join([str(t_long + rotate[0]), str(t_lat - rotate[1])])}"
+            else:
+                return
+            self.search()
+        elif event.button() == Qt.RightButton:
+            if 0 <= int(event.x()) <= 601 and 0 <= int(event.y()) <= 421:
+                coords = [int(event.x()), int(event.y())]
+                rotate = [(coords[0] - self.center[0]) / 180 *
+                          float(map_params['spn'].split(',')[0]),
+                          (coords[1] - self.center[1]) / 320 *
+                          float(map_params['spn'].split(',')[0])]
+                t_long, t_lat = float(map_params['ll'].split(',')[0]), float(map_params['ll'].split(
+                    ',')[1])
+                map_params[
+                    'pt'] = f"{','.join([str(t_long + rotate[0]), str(t_lat - rotate[1])])},flag"
+                self.serch_org()
+            else:
+                return
 
     def generate(self):
         global map_params
@@ -115,6 +130,7 @@ class MyWidget(QMainWindow):
             toponym_coodrinates = toponym["Point"]["pos"]
             toponym_longitude, toponym_lattitude = toponym_coodrinates.split(" ")
         except Exception:
+            self.textBrowser.setPlainText('Ничего не найдено!')
             return
         map_params['ll'] = ','.join([toponym_longitude, toponym_lattitude])
         map_params['pt'] = f"{','.join([toponym_longitude, toponym_lattitude])}" \
@@ -125,6 +141,41 @@ class MyWidget(QMainWindow):
         else:
             self.textBrowser.setPlainText('\n'.join(address.split(', ')))
         request()
+
+    def serch_org(self):
+        global map_params
+        geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"
+        geocoder_params = {
+            "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
+            "geocode": map_params['pt'][:-5],
+            "format": "json"}
+        response = requests.get(geocoder_api_server, params=geocoder_params)
+        response = response.json()
+        toponym = response["response"]["GeoObjectCollection"][
+            "featureMember"][0]["GeoObject"]
+        address = ','.join(toponym['metaDataProperty']['GeocoderMetaData'][
+                               'Address']['formatted'].split(', '))
+        search_map_params = {
+            'apikey': 'dda3ddba-c9ea-4ead-9010-f43fbc15c6e3',
+            'text': address,
+            'lang': 'ru_RU',
+            "ll": map_params['pt'][:-5],
+            'type': 'biz',
+            "spn": '0.0008,0.0008',
+            'rspn': '1'}
+
+        map_search_server = "https://search-maps.yandex.ru/v1/"
+        # ... и выполняем запрос
+        response = requests.get(map_search_server, params=search_map_params)
+        response = response.json()
+        try:
+            time = response["features"][0]["properties"]['CompanyMetaData']['Hours']['text']
+            name = response["features"][0]["properties"]['name']
+            address = response["features"][0]["properties"]['description']
+            self.textBrowser.setPlainText('\n'.join([name, address, time]))
+        except Exception:
+            self.textBrowser.setPlainText('Ничего не найдено!')
+            return
 
     def vipe(self):
         global map_params
